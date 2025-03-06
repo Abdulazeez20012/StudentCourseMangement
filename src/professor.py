@@ -71,3 +71,15 @@ class Professor(User):
         except ValueError:
             print("Invalid email or password is incorrect.")
         return False
+
+    def verify_email_in_file(self, email, password):
+        with open("professor_details.txt", 'r') as file:
+            for line in file:
+                data = line.strip().split(':')
+                stored_firstname, stored_lastname, stored_email, stored_password = data[0], data[1], data[2], data[3]
+                if self.email == stored_email:
+                    if bcrypt.checkpw(password.encode("utf-8"), stored_password.encode("utf-8")):
+                        return True
+                    else:
+                        raise ValueError("Invalid email or password is incorrect.")
+            return False

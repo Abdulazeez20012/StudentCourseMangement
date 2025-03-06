@@ -68,13 +68,14 @@ class Student(User):
 
 
 
-    def verify_email_in_file(self, email):
+    def verify_email_in_file(self, email,password):
         with open("student_details.txt", 'r') as file:
             for line in file:
                 data = line.strip().split(':')
                 stored_firstname, stored_lastname, stored_email, stored_password = data[0], data[1], data[2], data[3]
                 if email == stored_email:
-                    return True
+                    if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                        return True
 
             return False
 

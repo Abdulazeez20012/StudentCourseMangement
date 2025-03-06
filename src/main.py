@@ -2,6 +2,10 @@ import re
 
 from studentmanagement import StudentManagementSystem
 
+from exception import UserNotFoundException,CourseNotFoundException,GradeOutOfRangeException
+
+
+
 def print_menu():
     print("""
                 ---WELCOME TO MEA PROGRAMMING INSTITUTE---
@@ -35,11 +39,14 @@ def student_menu():
             case '3':
                 manager.view_enrolled_courses()
             case '4':
+                print("You caught us on this one. Working on it")
+            case '5':
                 id_number = int(input("Enter course id number: "))
                 course = manager.find_course_id(id_number)
                 print(f"Here is the course: {course}")
-            case '5':
-                manager.view_student_grades()
+            case '6':
+                print("You caught us on this one. Working on it")
+                #manager.view_grade()
             case '7':
                 print("Logging out...\n")
                 break
@@ -77,9 +84,7 @@ def teacher_menu():
                     for course in student.courses:
                         try:
                             grade = float(input(f"Enter {student.name}'s score for {course.course_name}: "))
-
                             manger.grade_student(course, student, grade)
-
                             print(f"Grade recorded for {student.name} in {course.course_name}: {grade}")
                         except ValueError:
                             print("Invalid input. Please enter a numeric value for the grade.")
@@ -95,7 +100,7 @@ def main():
 
             while choice not in ['1', '2', '3', '4']:
                 print("Invalid menu option. Please select a valid option (1-4).")
-                choice = input("Enter your choice (1-9): ").strip()
+                choice = input("Enter your choice (1-4): ").strip()
 
             match choice:
                 case '1':
@@ -126,14 +131,12 @@ def main():
                     email = input("Enter your Email: ")
                     password = input("Password: ")
                     try:
-                        student_grade.login_in_student(email, password)
-                        holder = student_grade.verify_role(password, email)
-                        print("Login successful.")
-                        if holder is True:
-                            student_menu()
-                            
-                        else:
-                            teacher_menu()
+                       if student_grade.verify_student_role(password, email):
+                           student_grade.login_in_student(email, password)
+                           student_menu()
+                       if student_grade.verify_teacher_role(password, email):
+                           student_grade.login_in_teacher(email, password)
+                           teacher_menu()
                     except Exception as e:
                         print("Error:", e)
 

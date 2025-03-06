@@ -17,10 +17,12 @@ class StudentManagementSystem:
 
 
     def register_student(self, first_name, last_name, email, password):
-        student = Student(password)
-        student.register(first_name, last_name, email, password)
-        self.students.append(student)
-        print(f"Student {first_name} {last_name} registered successfully.")
+        try:
+            student = Student(password)
+            student.register(first_name, last_name, email, password)
+            self.students.append(student)
+        except Exception as e:
+            print(e)
 
     def enroll_course(self,course):
         try:
@@ -87,9 +89,6 @@ class StudentManagementSystem:
             print(e)
 
 
-    def verify_role(self,password,email):
-        student = Student(password)
-        return student.verify_email_in_file(email)
 
     def add_course(self,course_name):
         try:
@@ -113,6 +112,27 @@ class StudentManagementSystem:
 
     def grade_student(self,course,student,grade):
         grades = Grade(course,student, grade)
+
+    def verify_student_role(self, password, email):
+        try:
+            student = Student(password)
+            return student.verify_email_in_file(email, password)
+        except Exception as e:
+            print(e)
+
+    def verify_teacher_role(self, password, email):
+        try:
+            professor = Professor(password)
+            return professor.verify_email_in_file(email, password)
+        except Exception as e:
+            print(e)
+
+    def login_in_teacher(self,email,password):
+        try:
+            professor = Professor(password)
+            professor.login(email,password)
+        except Exception as e:
+            print(e)
 
 
 
