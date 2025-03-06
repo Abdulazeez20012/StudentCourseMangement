@@ -3,26 +3,23 @@ import bcrypt
 import course
 from user import User
 
+
 class Professor(User):
     def __init__(self, password):
         super().__init__(password)
         self.courses = course.Course()
         #
 
-    def register(self,password):
+    def register(self,first_name,last_name,email,password):
         try:
-            firstname_collected = self.collect_user_firstname()
-            self.first_name = firstname_collected
-            lastname_collected = self.collect_user_lastname()
-            self.last_name = lastname_collected
-            email_collected = self.collect_user_email()
-            self.email = email_collected
-            self.save_to_file(self.hashed_password(password))
-            print("Professor registered successfully")
+            self.first_name = first_name
+            self.last_name = last_name
+            self.email = email
+            self.password = password
+            self.save_to_file()
         except ValueError as e:
             print(f"Error during registration: {e}")
-        except FileNotFoundError:
-            print("File not found.")
+
 
     def add_course(self, input_course):
         try:
@@ -46,20 +43,17 @@ class Professor(User):
             for particular_course in self.courses.courses.values():
                 print(f"- {particular_course}")
 
-    def login(self):
-        email = self.collect_user_email()
-        password = self.collect_user_password()
-
+    def login(self,email,password):
         if self.load_from_file(password, email):
-            print("Login successful.")
             return True
         else:
             print("Invalid email or password.")
             return False
 
-    def save_to_file(self, hashed_pass):
-        with open("professor_details.txt", 'a') as file:
-            file.write(f'{self.first_name}:{self.last_name}:{self.email}:{hashed_pass.decode('utf-8')}')
+    def save_to_file(self):
+        hashed_password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        with open("professor_detail.txt", 'a') as file:
+            file.write(f'{self.first_name}:{self.last_name}:{self.email}:{hashed_password}\n')
 
     def load_from_file(self, password, email):
         try:

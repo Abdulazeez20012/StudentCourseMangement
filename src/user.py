@@ -7,7 +7,7 @@ from email_validator import EmailNotValidError
 class User:
     def __init__(self, password):
         self.__email = "email"
-        self.___password = password
+        self.__password = self.hashed_password(password)
         self.__first_name = "first_name"
         self.__last_name = "last_name"
 
@@ -36,35 +36,36 @@ class User:
         self.__email = self.validate_user_email(value)
 
     @property
-    def passage(self):
-        return self.___password
+    def password(self):
+        return self.__password
 
-    def register(self, password):
+    @password.setter
+    def password(self, value):
+        self.__password = self.validate_user_password(value)
+
+    def register(self,first_name,last_name,email, password):
         raise NotImplementedError("Subclass must implement register method.")
 
-    def login(self):
+    def login(self,email,password):
+        if email == self.email and password == self.password:
+            return True
         raise NotImplementedError("Subclass must implement login method.")
 
     def view_courses(self):
         raise NotImplementedError("Subclass must implement view courses method.")
 
+
     def hashed_password(self, password):
-        while True:
             try:
                 password_input = self.validate_user_password(password)
                 return bcrypt.hashpw(password_input.encode('utf-8'), bcrypt.gensalt())
             except ValueError:
                 print("Invalid input.")
-                password_input = input("""
-                    Username must contain capital letters
-                    Username must contain small letters
-                    Username must contain at least 1 number, at least 1 punctuation and must be 8 to 16 alphanumeric - symbol long
-                    Enter your password:
-                """)
+
 
     def validate_user_password(self, password):
         if password is None or not re.fullmatch(r'[A-Za-z0-9\-!$%^&*()_+|~=`{}\[\]:";\'<>?,.\/]{8,16}', password):
-            raise ValueError("Invalid password.")
+            raise ValueError("Invalid password.\nYour password must contain at least 8 characters.  ")
         return password
 
     def validate_user_firstname(self, firstname):
@@ -79,10 +80,10 @@ class User:
 
     def validate_user_email(self, email):
         if email is None or not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
-            raise ValueError("Invalid email")  # Raise the exception
+            raise ValueError("Invalid email")
         return email
 
-    def save_to_file(self, hashed_pass):
+    def save_to_file(self):
         raise NotImplementedError("Subclass must implement save to file method.")
 
     def load_from_file(self, password, email):

@@ -1,7 +1,8 @@
+from grade import Grade
 from student import Student
 from professor import Professor
 from course import Course
-from grade import Grade
+from enroll import Enrollment
 
 class StudentManagementSystem:
     def __init__(self):
@@ -9,22 +10,31 @@ class StudentManagementSystem:
         self.professors = []
         self.courses = Course()
         self.grades = []
+        self.roll = Enrollment()
+
+    def get_students(self):
+        return self.students
+
 
     def register_student(self, first_name, last_name, email, password):
         student = Student(password)
-        student.first_name = first_name
-        student.last_name = last_name
-        student.email = email
-        student.register(password)
+        student.register(first_name, last_name, email, password)
         self.students.append(student)
         print(f"Student {first_name} {last_name} registered successfully.")
+
+    def enroll_course(self,course):
+        try:
+            self.roll.enroll(course)
+        except Exception as e:
+            print(e)
+
 
     def register_professor(self, first_name, last_name, email, password):
         professor = Professor(password)
         professor.first_name = first_name
         professor.last_name = last_name
         professor.email = email
-        professor.register(password)
+        professor.register(first_name, last_name, email, password)
         self.professors.append(professor)
         print(f"Professor {first_name} {last_name} registered successfully.")
 
@@ -44,8 +54,8 @@ class StudentManagementSystem:
         if course_name not in self.courses.courses:
             print("Course not found.")
             return
-        # self.grades.append(Grade(student_email, course_name, grade))
-        # print(f"Grade {grade} assigned to {student_email} for {course_name}.")
+        self.grades.append(Grade(student_email, course_name, grade))
+        print(f"Grade {grade} assigned to {student_email} for {course_name}.")
 
     def view_student_grades(self, student_email):
         student_grades = [grade for grade in self.grades if grade.student == student_email]
@@ -55,17 +65,60 @@ class StudentManagementSystem:
         for grade in student_grades:
             print(grade)
 
-    def view_course_students(self, course_name):
-        if course_name not in self.courses.courses:
-            print("Course not found.")
+    def view_course(self):
+        if not self.courses:
+            print("No courses available.")
             return
-        students_in_course = [student for student in self.students if course_name in student.enrolledCourses]
-        if not students_in_course:
-            print("No students enrolled in this course.")
-            return
-        for student in students_in_course:
-            print(f"Student: {student.first_name} {student.last_name}, Email: {student.email}")
 
+        courses = self.courses.view_course()
+
+        if not courses:
+            print("No courses found.")
+            return
+
+        for course_id,course in courses.items():
+            print(f"- Here is the course id:{course_id} and course:{course}")
 
     def login_in_student(self,email,password):
-        if
+        try:
+            student = Student(password)
+            student.login(email,password)
+        except Exception as e:
+            print(e)
+
+
+    def verify_role(self,password,email):
+        student = Student(password)
+        return student.verify_email_in_file(email)
+
+    def add_course(self,course_name):
+        try:
+            self.courses.add_course(course_name)
+        except Exception as e:
+            print(e)
+
+    def remove_course(self, course):
+        try:
+            self.courses.remove_course(course)
+        except Exception as e:
+            print(e)
+
+    def find_course_id(self,id_number):
+        return self.courses.find_course_using_id(id_number)
+
+    def view_enrolled_courses(self):
+        enrolled_courses = self.roll.view_enroll_courses()
+        for course in enrolled_courses:
+            print(f"- {course}")
+
+    def grade_student(self,course,student,grade):
+        grades = Grade(course,student, grade)
+
+
+
+
+
+
+
+
+
