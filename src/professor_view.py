@@ -3,16 +3,15 @@ import time
 import authentication
 
 
-def display(professor):
+def display(professor) -> str:
 
 
     print(f"""
-            
-    1. Add courses
-    2. Assign courses
-    3. View student Enrolled in course
-    4. Remove courses
-    5. View courses Teaching
+    1. Add course
+    2. Assign course grade
+    3. View students enrolled in course
+    4. Remove course
+    5. View courses being taught
     6. Log Out""")
 
     choice = input("Enter your choice: ").strip()
@@ -23,7 +22,7 @@ def display(professor):
     return choice
 
 
-def case(professor,choice):
+def case(professor,choice) -> None:
     match choice:
         case '1':
             try:
@@ -38,9 +37,11 @@ def case(professor,choice):
                 course = input("Enter course name:").lower()
                 student_email = input("Enter student email:")
                 student_email = authentication.Authentication.validate_email(student_email)
-                grade = int(input("Enter grade:"))
+                grade = float(input("Enter grade:"))
+                while grade < 1:
+                    print(f'\033[1;31mInvalid grade Please you can not enter number lesser than 1\033[0m')
                 professor.professor_assign_grades(course,student_email,grade)
-                print("Grade as been successfully added")
+                print("Grade added successfully.")
             except Exception as e:
                 print(f'\033[1;31m{e}\033[0m')
 
@@ -66,10 +67,10 @@ def case(professor,choice):
                 print(f'\033[1;31m{e}\033[0m')
 
         case '6':
-            print_loading_message("Log in out")
+            print_loading_message("Logging out")
 
 
-def print_loading_message(message, delay=2.5):
+def print_loading_message(message, delay=2.5) -> None:
     print(message, end="", flush=True)
     for _ in range(3):
         time.sleep(delay)

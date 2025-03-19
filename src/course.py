@@ -7,7 +7,7 @@ class Course:
     def get_courses(self) -> dict:
         return self.courses
 
-    def add_course(self, course):
+    def add_course(self, course) -> None:
         if course not in self.courses.values():
             self.courses[self.course_id] = course
             print(f"Here is your course id: {self.course_id}")
@@ -16,13 +16,17 @@ class Course:
         else:
             raise Exception(f"Course {course} already exists")
 
-    def save_courses_to_file(self):
+    def save_courses_to_file(self) -> None:
+
         with open("../data/courses.txt", "a") as file:
             for course_id, course_name in self.courses.items():
                 file.write(f"{course_id}:{course_name}\n")
 
-    def load_courses_from_file(self):
-        try:#
+
+    def load_courses_from_file(self) -> None:
+        try:
+
+
             with open("../data/courses.txt", "r") as file:
                 for line in file:
                     data = line.strip().split(":")
@@ -37,7 +41,7 @@ class Course:
         except FileNotFoundError:
             self.courses = {}
 
-    def remove_course(self, input_course):
+    def remove_course(self, input_course) -> None:
         found = False#
         for id_number, course in list(self.courses.items()):
             if input_course == course:
@@ -47,23 +51,23 @@ class Course:
         if not found:
             raise ValueError(f"Course '{input_course}' not found")
 
-    def remove_using_id(self, id_number):
+    def remove_course_using_id(self, id_number) -> None:
         if id_number in self.courses:
             del self.courses[id_number]
             self.save_courses_to_file()
         else:
             raise ValueError(f"Course ID '{id_number}' not found")
 
-    def view_course(self):
+    def view_course(self) -> list:
         return list(self.courses.values())
 
 
-    def find_course_using_id(self, id_number):
+    def find_course_using_id(self, id_number) -> str:
         if id_number in self.courses:
             return self.courses.get(id_number)
         raise Exception(f"Course ID '{id_number}' not found")
 
-    def find_id_by_course(self, course):
+    def find_id_by_course(self, course) -> int:
         for course_id, course_name in self.courses.items():
             if course_name == course:
                 return course_id

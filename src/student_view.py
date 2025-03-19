@@ -2,40 +2,40 @@ import time
 
 from course import Course
 
-def display(student, stored_first_name, stored_last_name,stored_email):
-
-
-
-
+def display(student) -> str:
     print(f"""
     
         Choose from the following options (1-8) to proceed:
 
         1. View Courses Available
-        2. Enroll in Courses
-        3. View Enroll Courses
+
+        2. Enroll in a course
+        3. View Enrolled Courses
+
         4. Check Grade for a particular course
         5. find course by id
         6. find course id by course name
-        7. Un Enroll Course
+        7. Delete Course
         8. Log Out
         
 """)
 
     choice = input("Enter your choice: ")
-    cases(student,choice,stored_email)
+    cases(student,choice)
     return choice
 
 
-def cases(student,choice,stored_email):
+def cases(student,choice) -> None:
     match choice:
         case "1":
             try:
                 courses = Course().get_courses()
                 if courses == {}:
-                    print("No courses available")
+                    print("No course available")
                     return
-                print("Here are the courses available:")
+
+                print("Here are the course/courses available:")
+
                 print("-" * 40)
                 print(f"{'S/N':<5} | {'ID Number':<10} | {'Course'}")
                 print("-" * 40)
@@ -49,9 +49,12 @@ def cases(student,choice,stored_email):
             try:
                 courses = Course().get_courses()
                 if courses == {}:
-                    print("No courses available")
+
+         
+                    print("No course available")
                     return
-                print("Here are the courses available:")
+                print("Here are the course/courses available:")
+
                 print("-" * 40)
                 print(f"{'S/N':<5} | {'ID Number':<10} | {'Course'}")
                 print("-" * 40)
@@ -68,7 +71,7 @@ def cases(student,choice,stored_email):
             try:
                 data = student.get_enrolled_courses()
                 if not data:
-                    print("No enrolled courses available")
+                    print("No enrolled course available")
                     return
                 for course in data:
                     print(f"- {course}")
@@ -80,9 +83,11 @@ def cases(student,choice,stored_email):
             try:
                 courses = Course().get_courses()
                 if courses == {}:
-                    print("No courses available")
+
+                    print("No course available")
                     return
-                print("Here are the courses available:")
+                print("Here are the course/courses available:")
+
                 print("-" * 40)
                 print(f"{'S/N':<5} | {'ID Number':<10} | {'Course'}")
                 print("-" * 40)
@@ -99,7 +104,7 @@ def cases(student,choice,stored_email):
             try:
                 course = int(input("Enter course id:"))
                 course_name = Course().find_course_using_id(course)
-                print(f"here is the course id:{course}, and the course is:{course_name}")
+                print(f"Here is the course id:{course}, and the course is:{course_name}")
             except Exception as e:
                 print(f'\033[1;31m{e}\033[0m')
 
@@ -108,7 +113,7 @@ def cases(student,choice,stored_email):
             try:
                 course_name = input("Enter course name:")
                 course_id = Course().find_id_by_course(course_name)
-                print(f"here is the course id:{course_id}, and the course is:{course_name}")
+                print(f"Here is the course id:{course_id}, and the course is:{course_name}")
             except Exception as e:
                 print(f'\033[1;31m{e}\033[0m')
 
@@ -120,12 +125,12 @@ def cases(student,choice,stored_email):
                 print(f'\033[1;31m{e}\033[0m')
 
         case "8":
-            print_loading_message("Log out")
+            print_loading_message("Logging out")
 
 
 
 
-def print_loading_message(message, delay=0.5):
+def print_loading_message(message, delay=0.5) -> None :
     print(message, end="", flush=True)
     for _ in range(3):
         time.sleep(delay)

@@ -1,18 +1,23 @@
 import os
+from typing import Any
+
 import bcrypt
 
 class Database:
     def __init__(self, file_name):
         self.__file_name = file_name
+        self.verify_path()
+
+    def verify_path(self) -> None:
         if not os.path.exists(self.file_name):
             with open(self.file_name, "w") as file:
                 pass
 
     @property
-    def file_name(self):
+    def file_name(self) -> str:
         return self.__file_name
 
-    def save_to_file(self, first_name, last_name, email, password):
+    def save_to_file(self, first_name, last_name, email, password) -> None :
         try:
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             with open(self.__file_name, 'a') as file:
@@ -20,7 +25,7 @@ class Database:
         except Exception as e:
             print(f"\033[1;31mError saving to file: {e}\033[0m")
 
-    def load_from_file(self, email, password):
+    def load_from_file(self, email, password) -> tuple[list[Any], bool]:
         try:
             with open(self.__file_name, 'r') as file:
                 for line in file:
@@ -43,7 +48,7 @@ class Database:
             print(f"\033[1;31mError loading from file: {e}\033[0m")
             return [],False
 
-    def verify_email_exist(self, email):
+    def verify_email_exist(self, email) -> bool:
         try:
             with open(self.__file_name, 'r') as file:
                 for line in file:
@@ -62,14 +67,14 @@ class Database:
             print(f"\033[1;31mError verifying email: {e}\033[0m")
             return False
 
-    def save_to_file_grades(self, course_name, student_email,grade_type):
+    def save_to_file_grades(self, course_name, student_email,grade_type) -> None :
         try:
             with open(self.__file_name, 'a') as file:
                 file.write(f"{course_name}:{student_email}:{grade_type}\n")
         except Exception as e:
             print(f"\033[1;31mError saving grades to file: {e}\033[0m")
 
-    def load_from_file_grades(self):
+    def load_from_file_grades(self) -> list:
         try:
             with open(self.__file_name, 'r') as file:
                 for line in file:
