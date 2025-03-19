@@ -1,83 +1,94 @@
-import bcrypt
-
+import enroll
+from course import Course
+from database import Database
 from user import User
 
 class Student(User):
-    def __init__(self,password):
-        super().__init__(password)
-        self.enrolled_courses = []
-        self.grades = {}
+    def __init__(self,first_name,last_name,email,password):
+        super().__init__(first_name,last_name, email, password)
+        self.__email = email
+        # self.__first_name = first_name
+        self.__grades = {}
+        self.__is_logged_in = False
+        self.__enrolled_courses = enroll.Enrollment()
+        self.__student_course = Course()
 
-
-    def register(self,first_name,last_name,email,password):
+    def get_enrolled_courses(self) -> list:
         try:
-            self.first_name = first_name
-            self.last_name = last_name
-            self.email = email
-            self.password = password
-            self.save_to_file()
+            return self.__enrolled_courses.view_enrolled_courses()
         except ValueError as e:
-            print(f"Error during registration: {e}")
+            print(e)
 
-    def login(self, email, password):
-        if self.load_from_file(password, email):
-            return True
+
+    def get_grades(self) -> dict:
+        return self.__grades
+
+    def enroll(self, course_name) -> None:
+        try:
+            self.__enrolled_courses.enroll(self.__email,course_name)
+        except ValueError as e:
+            print(e)
+
+    def un_enroll(self, course_name) -> None:
+        try:
+            self.__enrolled_courses.un_enroll(self.__email,course_name)
+        except ValueError as e:
+            print(e)
+
+    def student_grade_setter(self, course_input, grade) -> None:
+        self.__grades[course_input] = grade
+
+    def register(self, first_name, last_name, email, password) -> None:
+        if not Database("../data/student_details.txt").verify_email_exist(email) and not Database(
+                "../data/professor_details.txt").verify_email_exist(email):
+            self.__first_name = first_name
+            self.__last_name = last_name
+            self.__email = email
+            self.__password = password
+            Database("../data/student_details.txt").save_to_file(self.__first_name, self.__last_name, self.__email, self.__password)
         else:
-            print("Invalid email or password.")
-            return False
+            raise ValueError("Email already registered")
 
-    def register_for_course(self, course_name):
-        if course_name not in self.enrolled_courses:
-            self.enrolled_courses.append(course_name)
-            print(f"Successfully enrolled in {course_name}.")
-        else:
-            print(f"You are already enrolled in {course_name}.")
+    def login_state(self) -> bool:
+        return self.__is_logged_in
 
-    def view_courses(self):
-        if not self.enrolled_courses:
-            print("You are not enrolled in any courses.")
+    def login(self, email, password) -> bool:
+        try:
+            data = Database("../data/student_details.txt").load_from_file(email, password)
+            if data[1]:
+                self.__is_logged_in = True
+                print("You are logged in.")
+                return self.__is_logged_in
+            else:
+                return self.__is_logged_in
+        except Exception as e:
+            print(e)
+
+    def logout(self) -> None:
+        self.__is_logged_in = False
+
+    def register_course(self, course_name) -> None:
+        try:
+            if course_name in self.__student_course.get_courses().values():
+                raise ValueError("Course already registered")
+            else:
+                self.__enrolled_courses.enroll(self.__email,course_name)
+                print(f"Successfully enrolled in {course_name}.")
+        except Exception as e:
+            print(e)
+
+    def view_courses(self) -> None:
+        if not self.get_enrolled_courses():
+            print("You are not enrolled in any course.")
         else:
             print("Your enrolled courses:")
-            for course in self.enrolled_courses:
+            for course in self.get_enrolled_courses():
                 print(f"- {course}")
 
-    def view_course_grade(self, course_name):
-        if course_name in self.grades:
-            print(f"Your grade for {course_name} is {self.grades[course_name]}.")
+    def view_course_grades(self,course_name) -> None:
+        if course_name not in self.get_enrolled_courses() or not self.__student_course.view_course():
+            print("You are not enrolled in any course.")
         else:
-            print(f"No grade found for {course_name}.")
-
-    def save_to_file(self):
-        hashed_password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        with open("student_details.txt", 'a') as file:
-            file.write(f'{self.first_name}:{self.last_name}:{self.email}:{hashed_password}\n')
-
-    def load_from_file(self, password, email):
-        try:
-            with open("student_details.txt", 'r') as file:
-                for line in file:
-                    data = line.strip().split(':')
-                    stored_firstname, stored_lastname, stored_email, stored_password = data[0], data[1], data[2], data[3]
-                    if email == stored_email:
-                        if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
-                            self.first_name = stored_firstname
-                            self.last_name = stored_lastname
-                            return True
-        except FileNotFoundError:
-            print("File not found.")
-
-
-
-    def verify_email_in_file(self, email,password):
-        with open("student_details.txt", 'r') as file:
-            for line in file:
-                data = line.strip().split(':')
-                stored_firstname, stored_lastname, stored_email, stored_password = data[0], data[1], data[2], data[3]
-                if email == stored_email:
-                    if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
-                        return True
-
-            return False
-
-
-
+            holder = Database("../data/grade_details.txt").load_from_file_grades()
+            if self.__email == holder[1]:
+                print(f"Your grades in {holder[0]} is: {holder[2]}")

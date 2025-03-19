@@ -8,14 +8,15 @@ class GradeType(Enum):
     NONE = -1.0
 
     @staticmethod
-    def from_numeric(numeric_grade: float) -> 'GradeType':
-        if numeric_grade >= 90:
+    def convert_score_to_grade_type(score: float) -> 'GradeType':
+        if score >= 90:
             return GradeType.A
-        elif numeric_grade >= 80:
+        elif score >= 80:
             return GradeType.B
-        elif numeric_grade >= 70:
+        elif score >= 70:
             return GradeType.C
-        elif numeric_grade >= 60:
+        elif score >= 60:
             return GradeType.D
         else:
             return GradeType.F
+

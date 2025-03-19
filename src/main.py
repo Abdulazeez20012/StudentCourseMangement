@@ -1,158 +1,77 @@
-import re
-
-from studentmanagement import StudentManagementSystem
-
-from exception import UserNotFoundException,CourseNotFoundException,GradeOutOfRangeException
+import sys
+import authentication
+from student_management import StudentManagementSystem
 
 
-
-def print_menu():
+def display_menu():
     print("""
-                ---WELCOME TO MEA PROGRAMMING INSTITUTE---
-        Where Passion for Code Transforms into Innovation.
-        --- Main Menu ---
-        1. Register Student
-        2. Register Professor
-        3. Login
-        4. Exit""")
-def student_menu():
-    manager = StudentManagementSystem()
+            Welcome to MEA Institute Application 
+
+            Here are our menu:
+            1. Register as Student
+            2. Register as Professor
+            3. Login as Professor
+            4. Login as Student
+            5. Exit""")
+
+    choice = input("Enter your choice: ").strip()
+    while choice not in ["1", "2", "3", "4", "5"]:
+        print(f'\033[1;31mInvalid Input\nTry Again!!!\033[0m')
+        choice = input("Enter your choice: ").strip()
+    cases(choice)
+
+
+def get_valid_input(prompt, validation_function, field_name=None):
     while True:
-        print("""
-            --- Student Menu ---
-            1. View courses
-            2. Enroll in a course
-            3. view Enrolled courses
-            4. View Grade
-            5. find course with id
-            6. find course id with course name
-            7. Log out
-        """)
-        choice = input("Enter your choice 1- 7: ").strip()
-
-        match choice:
-            case '1':
-                manager.view_course()
-            case '2':
-                    course = input("Enter course : ")
-                    manager.enroll_course(course)
-            case '3':
-                manager.view_enrolled_courses()
-            case '4':
-                print("You caught us on this one. Working on it")
-            case '5':
-                id_number = int(input("Enter course id number: "))
-                course = manager.find_course_id(id_number)
-                print(f"Here is the course: {course}")
-            case '6':
-                print("You caught us on this one. Working on it")
-                #manager.view_grade()
-            case '7':
-                print("Logging out...\n")
-                break
-            case _:
-                print("Invalid option. Please select a valid option (1-4).")
+        try:
+            value = input(prompt).strip()
+            if field_name:
+                value = validation_function(value, field_name)
+            else:
+                value = validation_function(value)
+            return value
+        except Exception as e:
+            print(f'\033[1;31m{e}\033[0m')
 
 
+def cases(choice):
+    match choice:
+        case "1":
+            first_name = get_valid_input("Enter your first name: ", authentication.Authentication.validate_name,
+                                         "first name")
+            last_name = get_valid_input("Enter your last name: ", authentication.Authentication.validate_name,
+                                        "last name")
+            email = get_valid_input("Enter your email: ", authentication.Authentication.validate_email)
+            password = get_valid_input("Enter your password: ", authentication.Authentication.validate_password)
+            StudentManagementSystem().register_student(first_name, last_name, email, password)
 
+        case "2":
+            first_name = get_valid_input("Enter your first name: ", authentication.Authentication.validate_name,
+                                         "first name")
+            last_name = get_valid_input("Enter your last name: ", authentication.Authentication.validate_name,
+                                        "last name")
+            email = get_valid_input("Enter your email: ", authentication.Authentication.validate_email)
+            password = get_valid_input("Enter your password: ", authentication.Authentication.validate_password)
+            StudentManagementSystem().register_professor(first_name, last_name, email, password)
 
-def teacher_menu():
-    manger = StudentManagementSystem()
-    while True:
-        print("""
-            --- Teacher Menu ---
-            1. Add course
-            2. Remove course
-            3. Grade Students
-            4. Log out
-        """)
-        choice = input("Enter your choice 1- 4: ").strip()
-        match choice:
-            case '1':
-                course = input("Enter course name: ")
-                manger.add_course(course)
-            case '2':
-                course = input("Enter course name: ")
-                manger.remove_course(course)
-            case '3':
-                students = manger.get_students()
-                for student in students:
-                    if not student.courses:
-                        print(f"Student {student.name} is not enrolled in any courses.")
-                        continue
+        case "3":
+            email = get_valid_input("Enter your email: ", authentication.Authentication.validate_email)
+            password = get_valid_input("Enter your password: ", authentication.Authentication.validate_password)
+            StudentManagementSystem().log_in_professor(email, password)
 
-                    for course in student.courses:
-                        try:
-                            grade = float(input(f"Enter {student.name}'s score for {course.course_name}: "))
-                            manger.grade_student(course, student, grade)
-                            print(f"Grade recorded for {student.name} in {course.course_name}: {grade}")
-                        except ValueError:
-                            print("Invalid input. Please enter a numeric value for the grade.")
+        case "4":
+            email = get_valid_input("Enter your email: ", authentication.Authentication.validate_email)
+            password = get_valid_input("Enter your password: ", authentication.Authentication.validate_password)
+            StudentManagementSystem().log_in_student(email, password)
 
+        case "5":
+            print(f"\033[1;32mThank you for using our application\033[32m")
+            sys.exit()
 
 
 def main():
-    student_grade = StudentManagementSystem()
     while True:
-        try:
-            print_menu()
-            choice = input("Enter your choice (1-4): ").strip()
-
-            while choice not in ['1', '2', '3', '4']:
-                print("Invalid menu option. Please select a valid option (1-4).")
-                choice = input("Enter your choice (1-4): ").strip()
-
-            match choice:
-                case '1':
-                    print("-- Register Student --")
-                    first_name = input("Enter first Name: ")
-                    last_name = input("Enter last name: ")
-                    email = input("Email: ")
-                    password = input("Password: ")
-                    #student_id = input("Student ID: ")
-                    student_grade.register_student(first_name, last_name, email, password)
-
-                case '2':
-                    print("-- Register Professor --")
-                    first_name = input("Enter first Name: ")
-                    last_name = input("Enter last name: ")
-                    email = input("Email: ")
-                    password = input("Password: ")
-                    #student_id = input("Student ID: ")
-                    try:
-                       student_grade.register_professor(first_name, last_name, email, password)
-                       print(f"Professor {first_name} {last_name} registered successfully.")
-                    except Exception as e:
-                        print(e)
-
-
-                case '3':
-                    print("\n-- Login --")
-                    email = input("Enter your Email: ")
-                    password = input("Password: ")
-                    try:
-                       if student_grade.verify_student_role(password, email):
-                           student_grade.login_in_student(email, password)
-                           student_menu()
-                       if student_grade.verify_teacher_role(password, email):
-                           student_grade.login_in_teacher(email, password)
-                           teacher_menu()
-                    except Exception as e:
-                        print("Error:", e)
-
-
-                case '4':
-                    print("Exiting... Goodbye!\nThanks for using this app")
-                    return
-
-                case _:
-                    print("Invalid option. Please select a valid option (1-4).")
-                    choice = input("Enter your choice (1-4): ").strip()
-
-        except Exception as e:
-            print(e)
-
-
+        display_menu()
 
 
 if __name__ == "__main__":
